@@ -2,17 +2,18 @@
 FROM golang:1.22 AS builder
 WORKDIR /app
 
-# Copy go.mod first (for better caching if you ever build on host)
+# Copy go.mod (and optionally go.sum) first for caching
 COPY go.mod ./
+# COPY go.sum ./  # uncomment if you have go.sum
 
 # Copy the rest of the source
 COPY . .
 
-# Resolve deps and generate go.sum if missing
+# Resolve dependencies
 RUN go mod tidy
 
-# Build static binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /app/gin-server ./cmd/gin-demo/main.go
+# Build static binary (package, not single file path)
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /app/gin-server ./cmd/gin-demo
 
 # --- Runtime stage ---
 FROM debian:stable-slim
@@ -24,6 +25,4 @@ COPY --from=builder /app/gin-server /app/gin-server
 EXPOSE 8080
 ENV PORT=8080
 
-# This is what container will run (NOT bash)
 CMD ["/app/gin-server"]
-

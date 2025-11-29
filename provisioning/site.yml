@@ -11,25 +11,80 @@
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: Install base tools
-      apt:
-        name:
-          - git
-          - curl
-          - make
-        state: present
-
     - name: Install Go
       apt:
         name: "{{ golang_package }}"
         state: present
 
-    - name: Install Docker (docker.io)
+    - name: Install prerequisite packages for Docker repo
       apt:
-        name: docker.io
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - gnupg
         state: present
 
-    - name: Enable and start Docker
+    - name: install bash-completion package
+      apt:
+        name:
+          - bash-completion
+        state: present
+        update_cache: yes
+
+    - name: configure bash completion and prompt in vagrant .bashrc
+      blockinfile:
+        path: "/home/vagrant/.bashrc"
+        create: yes
+        marker: "# {mark} provision"
+        block: |
+          # Enable bash-completion if available
+          if [ -f /usr/share/bash-completion/bash_completion ]; then
+            . /usr/share/bash-completion/bash_completion
+          elif [ -f /etc/bash_completion ]; then
+            . /etc/bash_completion
+          fi
+
+          # Nice prompt: user@host:cwd$
+          export PS1='\u@\h:\w\$ '
+      become: true
+      become_user: vagrant
+
+    - name: Create keyrings directory if missing
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Download Docker GPG Key
+      get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+
+    - name: Add Docker APT repository
+      copy:
+        dest: /etc/apt/sources.list.d/docker.list
+        mode: '0644'
+        content: |
+          deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+
+    - name: Update apt after adding Docker repo
+      apt:
+        update_cache: yes
+
+    - name: Install Docker CE and related packages
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Enable and start Docker service
       systemd:
         name: docker
         enabled: yes
@@ -40,4 +95,3 @@
         name: vagrant
         groups: docker
         append: yes
-
