@@ -26,29 +26,30 @@
           - gnupg
         state: present
 
-    - name: install bash-completion package
-      apt:
-        name:
-          - bash-completion
-        state: present
-        update_cache: yes
+    - name: Ensure vagrant uses bash as login shell
+      user:
+        name: vagrant
+        shell: /bin/bash
 
-    - name: configure bash completion and prompt in vagrant .bashrc
+    - name: Install bash-completion
+      apt:
+        name: bash-completion
+        state: present
+
+    - name: Configure bash completion and prompt in vagrant .bashrc
       blockinfile:
         path: "/home/vagrant/.bashrc"
         create: yes
         marker: "# {mark} provision"
         block: |
-          # Enable bash-completion if available
+          # Enable bash completion
           if [ -f /usr/share/bash-completion/bash_completion ]; then
             . /usr/share/bash-completion/bash_completion
-          elif [ -f /etc/bash_completion ]; then
-            . /etc/bash_completion
           fi
 
-          # Nice prompt: user@host:cwd$
-          export PS1='\u@\h:\w\$ '
-      become: true
+          # Force prompt
+          unset PROMPT_COMMAND
+          export PS1='[ \u@\h \w ]\$ '
       become_user: vagrant
 
     - name: Create keyrings directory if missing

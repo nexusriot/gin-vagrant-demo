@@ -1,4 +1,4 @@
-module example.com/gin-vagrant-demo
+module github.com/nexusriot/gin-vagrant-demo
 
 go 1.22
 
