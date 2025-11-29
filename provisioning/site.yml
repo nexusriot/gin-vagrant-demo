@@ -1,0 +1,43 @@
+---
+- hosts: all
+  become: true
+
+  vars:
+    golang_package: golang-go
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install base tools
+      apt:
+        name:
+          - git
+          - curl
+          - make
+        state: present
+
+    - name: Install Go
+      apt:
+        name: "{{ golang_package }}"
+        state: present
+
+    - name: Install Docker (docker.io)
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Enable and start Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Add vagrant user to docker group
+      user:
+        name: vagrant
+        groups: docker
+        append: yes
+
