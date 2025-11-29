@@ -12,7 +12,7 @@ COPY . .
 RUN go mod tidy
 
 # Build static binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /app/gin-server ./main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /app/gin-server ./cmd/gin-demo/main.go
 
 # --- Runtime stage ---
 FROM debian:stable-slim
