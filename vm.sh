@@ -16,6 +16,7 @@ Commands:
   svc-start    Start gin-demo container inside VM (if already built)
   svc-stop     Stop gin-demo container inside VM
   svc-logs     Show logs of gin-demo container
+  version      Show the running service's build info (/version)
 EOF
 }
 
@@ -51,6 +52,9 @@ case "$CMD" in
     ;;
   svc-logs)
     vagrant ssh -c "docker logs -f gin-demo"
+    ;;
+  version)
+    vagrant ssh -c "curl -sf http://localhost:8080/version" && echo
     ;;
   *)
     echo "Unknown command: $CMD"

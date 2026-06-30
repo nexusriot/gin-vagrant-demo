@@ -1,3 +1,30 @@
-.vagrant/
-.idea/
+# Build output
+gin-server
+/dist/
 
+# Go toolchain
+*.test
+*.out
+coverage.html
+/vendor/
+
+# Vagrant
+.vagrant/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Docker volumes / local data
+postgres_data/

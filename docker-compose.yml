@@ -1,0 +1,39 @@
+services:
+  app:
+    build:
+      context: .
+      args:
+        VERSION: dev
+        COMMIT: local
+        BUILD_TIME: "unknown"
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: "8080"
+      GIN_MODE: release
+      DATABASE_URL: postgres://gin:gin@postgres:5432/gin?sslmode=disable
+      JWT_SECRET: dev-jwt-secret-change-in-prod
+      API_CLIENTS: "demo:demo-secret"
+      ALLOW_ORIGINS: "http://localhost:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: gin
+      POSTGRES_PASSWORD: gin
+      POSTGRES_DB: gin
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gin"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

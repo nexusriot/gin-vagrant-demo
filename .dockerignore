@@ -1,0 +1,42 @@
+# Version control
+.git
+.gitignore
+
+# Vagrant / VM
+.vagrant
+Vagrantfile
+provisioning
+vm.sh
+scripts
+
+# Documentation
+*.md
+DESIGN.md
+
+# OpenAPI spec (not needed in image)
+api
+
+# CI / tooling config
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.*
+
+# Built binary (rebuilt inside Docker)
+gin-server
+/dist/
+
+# Test artifacts
+*.test
+*.out
+coverage.html
+
+# Docker Compose (not needed inside image)
+docker-compose.yml
+docker-compose.*.yml
